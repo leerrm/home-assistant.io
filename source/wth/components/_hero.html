@@ -1,0 +1,68 @@
+<section id="hero">
+    <!--
+        Routing-line motif. It is decorative, so it is hidden from assistive
+        technology. The radial mask keeps the lines clear of the centre,
+        otherwise they run straight through the headline. The whole figure is
+        hidden below the tablet breakpoint.
+    -->
+    <figure class="routing" aria-hidden="true">
+        <svg viewBox="0 0 1400 620" preserveAspectRatio="xMidYMid slice" focusable="false">
+            <defs>
+                <radialGradient id="routing-fade">
+                    <stop offset="0%" stop-color="#000000" />
+                    <stop offset="55%" stop-color="#000000" />
+                    <stop offset="100%" stop-color="#ffffff" />
+                </radialGradient>
+                <mask id="routing-mask">
+                    <rect width="1400" height="620" fill="url(#routing-fade)" />
+                </mask>
+            </defs>
+            <g mask="url(#routing-mask)" fill="none" stroke="var(--wth-mint)" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M0 120 H180 L260 40 H520" />
+                <path d="M0 300 H120 L200 220 H420" />
+                <path d="M0 500 H240 L320 580 H560" />
+                <path d="M1400 100 H1220 L1140 180 H900" />
+                <path d="M1400 320 H1280 L1200 400 H960" />
+                <path d="M1400 540 H1160 L1080 460 H860" />
+                <circle cx="520" cy="40" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="420" cy="220" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="560" cy="580" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="900" cy="180" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="960" cy="400" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="860" cy="460" r="5" fill="var(--wth-mint)" stroke="none" />
+            </g>
+        </svg>
+    </figure>
+
+    <div class="container">
+        <div class="content">
+            <p class="eyebrow">November 2026 &middot; Fourth edition</p>
+            <h1>Month of &ldquo;What the heck?!&rdquo;</h1>
+            <p class="lead">Something in Home Assistant that makes you stop and think
+                <em>what the heck?!</em> &mdash; a setting you can never find, a step that
+                takes one tap too many, something that works but not the way you expect.
+                For the whole of November, that is exactly what we want to hear about.
+            </p>
+            <div class="buttons-container">
+                <a href="{{ page.forum_url }}" class="button primary" target="_blank" rel="noopener">
+                    <div class="icon">
+                        <svg>
+                            <use href="#forum" />
+                        </svg>
+                    </div>
+                    Share your &ldquo;What the heck?!&rdquo;
+                </a>
+                <a href="#how" class="button hollow">
+                    <div class="icon">
+                        <svg>
+                            <use href="#arrow-down" />
+                        </svg>
+                    </div>
+                    See how it works
+                </a>
+            </div>
+            <p class="small note">No GitHub account needed. No bug report to fill in.</p>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,46 @@
+<section id="cta">
+    <!-- Same routing motif as the hero, mirrored and masked clear of the copy. -->
+    <figure class="routing routing-mirrored" aria-hidden="true">
+        <svg viewBox="0 0 1400 420" preserveAspectRatio="xMidYMid slice" focusable="false">
+            <defs>
+                <radialGradient id="cta-routing-fade">
+                    <stop offset="0%" stop-color="#000000" />
+                    <stop offset="50%" stop-color="#000000" />
+                    <stop offset="100%" stop-color="#ffffff" />
+                </radialGradient>
+                <mask id="cta-routing-mask">
+                    <rect width="1400" height="420" fill="url(#cta-routing-fade)" />
+                </mask>
+            </defs>
+            <g mask="url(#cta-routing-mask)" fill="none" stroke="var(--wth-mint)" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M0 80 H200 L280 160 H480" />
+                <path d="M0 340 H160 L240 260 H440" />
+                <path d="M1400 120 H1200 L1120 200 H920" />
+                <path d="M1400 360 H1240 L1160 280 H940" />
+                <circle cx="480" cy="160" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="440" cy="260" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="920" cy="200" r="5" fill="var(--wth-mint)" stroke="none" />
+                <circle cx="940" cy="280" r="5" fill="var(--wth-mint)" stroke="none" />
+            </g>
+        </svg>
+    </figure>
+
+    <div class="container">
+        <div class="content">
+            <h2>So, what makes you say it?</h2>
+            <p>Think of the one thing that has been quietly bothering you. That is the
+                one. Go and post it.</p>
+            <div class="buttons-container">
+                <a href="{{ page.forum_url }}" class="button primary" target="_blank" rel="noopener">
+                    <div class="icon">
+                        <svg>
+                            <use href="#forum" />
+                        </svg>
+                    </div>
+                    Share your &ldquo;What the heck?!&rdquo;
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

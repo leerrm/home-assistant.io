@@ -832,3 +832,7 @@ layout: null
 /triggers/vacuum.docked /triggers/vacuum.returned_to_dock/ 301
 /conditions/climate.target_humidity /conditions/climate.is_target_humidity/ 301
 /conditions/climate.target_temperature /conditions/climate.is_target_temperature/ 301
+
+# Month of "What the heck?!" landing page
+/what-the-heck /wth/ 301
+/wth-2026 /wth/ 301

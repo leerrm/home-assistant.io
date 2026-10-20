@@ -1,0 +1,25 @@
+items:
+  - question: Do I need a GitHub account to take part?
+    answer: No. The whole point of this month is that you do not need one. Everything happens on our community forums, so a forum account is all you need. You do not have to write a bug report, fill in a template, or know what any of it is called. Describe what happened in your own words.
+  - question: I have several things on my mind. Should I put them in one topic?
+    answer: Please create a separate topic for each one. There is no limit on how many you can post. Each topic can be read, voted on, discussed, and picked up on its own, so a list of ten things stacked into a single topic is much harder for anyone to act on.
+  - question: Someone already posted my “What the heck?!”. What now?
+    answer: Vote on their topic instead of creating a new one. Votes are how we see which rough edges a lot of people run into. If your situation is a little different, add a reply to that topic describing what is different for you.
+  - question: Will everything that gets posted be fixed?
+    answer: <p>No, and we would rather be upfront about that. There is no guarantee that any single topic gets picked up. In past editions the forum category filled up with hundreds of topics in a few weeks, which is far more than anyone could work through.</p><p>What does happen is that contributors pick up a good number of them during the month, and the rest gives us a clear picture of where Home Assistant is getting in your way. Several things from earlier editions turned into features much later, because the topic was there when the time came to plan that work.</p>
+  - question: My topic is one of the top-voted ones. Does that mean it gets built?
+    answer: Not necessarily. This is not a contest. Voting helps with visibility and gives us a sense of how many people recognize the same thing, but a popular topic can still turn out to be difficult or too large to take on. A topic with a lot of votes and replies is more likely to get noticed, and it helps shape what we plan next.
+  - question: I want support for a new device, service, or app. Is this the right place?
+    answer: No. This month is for the Home Assistant you already have, not for requests to add something new. If you would like support for a device or service that is not covered yet, post it in the <a href="https://community.home-assistant.io/c/feature-requests/13">Feature Requests</a> forum category instead, where those requests are collected year-round.
+  - question: I found a bug and I am comfortable with GitHub. Where should I report it?
+    answer: Go straight to GitHub and <a href="https://github.com/home-assistant/core/issues/new/choose">file an issue report</a>. Our issue tracker is the better place for an actual bug, because it is where the work on it gets tracked. This month exists for everything that does not fit that process.
+  - question: Something is broken and I need help with it today. Can I post it here?
+    answer: For help with a problem you are having right now, use the support categories on the <a href="https://community.home-assistant.io/">community forums</a>, where community members answer questions every day. Keep this month's category for the things that work, but not the way you expected.
+  - question: Does my “What the heck?!” have to be something small?
+    answer: No. Small things are very welcome, and they make up most of what gets posted. But if something larger has been bothering you about how Home Assistant works, this is a good moment to say so. Bigger topics from earlier editions have gone on to shape the roadmap.
+  - question: Do I have to write in English?
+    answer: The forum category is in English, so please post in English if you can. It does not need to be polished. Short, plain sentences are easier for everyone to read, and nobody is going to judge your spelling. If you are not sure you have explained it well, say what you expected to happen and what happened instead.
+  - question: What happens after November?
+    answer: The category stays readable after the month ends, and contributors keep picking things up from it. We also go through the topics as a whole when planning what to work on next, which is how several items from earlier editions eventually got built.
+  - question: Has this happened before?
+    answer: <p>Yes, three times. The first edition ran in 2020 and collected 746 topics and more than 4,500 replies in a single month. Editions followed in 2022 and 2024.</p><p>You can read the announcements for <a href="/blog/2020/08/18/the-month-of-what-the-heck/">2020</a>, <a href="/blog/2022/09/30/the-month-of-what-the-heck/">2022</a>, and <a href="/blog/2024/12/01/the-month-of-what-the-heck/">2024</a>, and the <a href="/blog/2020/09/19/summing-up-the-month-of-what-the-heck/">wrap-up of that first edition</a>.</p>
