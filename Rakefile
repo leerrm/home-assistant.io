@@ -52,6 +52,8 @@ task :generate do
   abort("Generating community meetups data failed") unless success
   success = system "rake newsletter_data"
   abort("Generating newsletter data failed") unless success
+  success = system "rake wth_topics_data"
+  abort("Generating WTH topic data failed") unless success
   success = system "jekyll build"
   abort("Generating site failed") unless success
   # The Astro build runs on every deploy (see astro/README.md). Jekyll
@@ -135,6 +137,7 @@ task :preview, :listen do |t, args|
   system "rake allowed_referrers_data"
   system "rake meetups_data"
   system "rake newsletter_data"
+  system "rake wth_topics_data"
   jekyllPid = Process.spawn({"OCTOPRESS_ENV"=>"preview"}, "jekyll build -t --watch --incremental")
   sassPid = Process.spawn("#{sass_compile} --watch")
   rackupPid = Process.spawn("rackup --port #{server_port} --host #{listen_addr}")
@@ -360,6 +363,99 @@ task :allowed_referrers_data do
     # file, or an empty list if none exists yet.
     warn "## Downloading allowed referrers failed, keeping existing file. #{e}"
     File.write(output_file, "[]") unless File.exist?(output_file)
+  end
+end
+
+desc "Download the open WTH topics from community.home-assistant.io"
+task :wth_topics_data do
+  output_file = "#{source_dir}/_data/wth_topics.json"
+  # The category listing, newest topic first. Each page holds 30 topics.
+  category_url = 'https://community.home-assistant.io/c/month-of-what-the-heck/61.json'
+  max_pages = 30
+  # An edition runs to roughly a thousand open topics, and the whole pool
+  # travels inline on the page, so the machine is loaded with a slice of it
+  # rather than all of it. The slice is a blend, so the claw can turn up both
+  # a WTH a lot of people voted for and one that was posted an hour ago.
+  max_voted_topics = 50
+  max_recent_topics = 100
+  # A month with fewer topics than this is a stray post in a quiet category
+  # rather than an edition, so it never pulls the window off the real one.
+  min_edition_topics = 5
+
+  # An edition starts in November and runs on into the new year, so a topic
+  # posted in January belongs to the edition of the year before.
+  edition_of = lambda do |time|
+    time.month >= 11 ? time.year : time.year - 1
+  end
+
+  # Submissions only, and only the ones still up for grabs: the category
+  # description and other pinned banners are not submissions, and a closed,
+  # archived or answered topic has already been dealt with.
+  open_topic = lambda do |topic|
+    topic['archetype'] == 'regular' &&
+      !topic['pinned'] && !topic['pinned_globally'] && topic['visible'] &&
+      !topic['closed'] && !topic['archived'] && !topic['has_accepted_answer'] &&
+      topic['created_at'].is_a?(String) && topic['slug'].is_a?(String)
+  end
+
+  begin
+    listed = []
+    newest = nil
+    (0...max_pages).each do |page|
+      body = Net::HTTP.get(URI("#{category_url}?order=created&page=#{page}"))
+      topics = JSON.parse(body).dig('topic_list', 'topics')
+      raise "payload does not contain a topic list" unless topics.is_a?(Array)
+
+      listed.concat(topics)
+      break if topics.length < 30
+
+      # The listing is newest first and holds every edition ever run, so stop
+      # once a page is entirely older than the edition that is being read.
+      oldest_on_page = topics.map { |topic| Time.parse(topic['created_at']).utc }.min
+      newest ||= topics.map { |topic| Time.parse(topic['created_at']).utc }.max
+      break if oldest_on_page < newest - (430 * 24 * 60 * 60)
+    end
+    raise "category does not list any topics" if listed.empty?
+
+    by_edition = listed.select(&open_topic).group_by do |topic|
+      edition_of.call(Time.parse(topic['created_at']).utc)
+    end
+    editions = by_edition.keys.select { |year| by_edition[year].length >= min_edition_topics }
+    # Before the first topics of a new edition land, the claw keeps handing
+    # out the ones still open from the edition before it.
+    edition = editions.max || by_edition.keys.max
+    raise "category does not list any open topics" if edition.nil?
+
+    in_edition = by_edition[edition]
+    most_voted = in_edition.sort_by { |topic| -topic['vote_count'].to_i }.first(max_voted_topics)
+    most_recent = (in_edition - most_voted).sort_by { |topic| topic['created_at'] }.reverse.first(max_recent_topics)
+
+    wths = (most_voted + most_recent).sort_by { |topic| topic['created_at'] }.reverse.map do |topic|
+      tags = (topic['tags'] || []).map { |tag| tag['name'] if tag.is_a?(Hash) }.compact
+      {
+        'id' => topic['id'],
+        'title' => topic['title'].to_s.strip,
+        # Just the slug, not the whole link: the page puts the forum address
+        # back in front of it, and an edition runs to a thousand topics.
+        'slug' => topic['slug'],
+        'votes' => topic['vote_count'].to_i,
+        # The opening post is the WTH itself, so it is not a reply.
+        'replies' => [topic['posts_count'].to_i - 1, 0].max,
+        'posted' => topic['created_at'][0, 10],
+        'tags' => tags.first(3),
+      }
+    end
+
+    File.open(output_file, "w") do |file|
+      file.write(JSON.generate({ 'edition' => edition, 'topics' => wths }))
+    end
+    puts "## Wrote #{wths.length} of #{in_edition.length} open WTH topics from the #{edition} edition"
+  rescue StandardError => e
+    # Never fail the build over the forum: fall back to the existing file, or
+    # to an empty pool if none exists yet. The claw machine falls back to its
+    # "browse the category" state when the pool is empty.
+    warn "## Downloading WTH topics failed, keeping existing file. #{e}"
+    File.write(output_file, JSON.generate({ 'edition' => nil, 'topics' => [] })) unless File.exist?(output_file)
   end
 end
 

@@ -1,0 +1,724 @@
+@use 'mixins' as *;
+
+// The claw machine page. The cabinet is plain DOM: a tinted glass box with a
+// rail across the top, a claw that walks along it, and a pile of capsules on
+// the floor. Everything is positioned as a percentage of the glass so the
+// claw and the capsules agree on where they are at any width.
+
+.page-wth-arcade {
+    --capsule-size: 46px;
+    // How far above the floor the claw stops. The pile is three rows deep
+    // now, so the claw has to come to rest on top of it rather than reaching
+    // down to the glass floor and plunging through the capsules.
+    --machine-floor: 128px;
+
+    @include bp(large-mobile) {
+        --capsule-size: 54px;
+        --machine-floor: 145px;
+    }
+
+    @include bp(tablet) {
+        --capsule-size: 62px;
+        --machine-floor: 165px;
+    }
+}
+
+// The pill row and the inline arrow come from the main WTH page, where they
+// are scoped to the sections this page does not carry.
+main#page-wth {
+    .button {
+        text-decoration: none;
+    }
+
+    .nav-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .nav-pill {
+        align-items: center;
+        background-color: var(--wth-surface);
+        border-radius: 32px;
+        color: var(--wth-ink);
+        display: inline-flex;
+        font-size: 13px;
+        font-weight: 500;
+        gap: 8px;
+        padding: 7px 14px;
+        text-decoration: none;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: var(--wth-mint);
+            color: var(--wth-ink);
+        }
+
+        @include bp(tablet) {
+            font-size: 14px;
+        }
+    }
+
+    .nav-pill .icon-inline {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-size: 15px;
+    }
+}
+
+main#page-wth #arcade-nav {
+    padding-bottom: 0;
+    padding-top: 20px;
+
+    @include bp(tablet) {
+        padding-top: 28px;
+    }
+}
+
+main#page-wth #arcade {
+    padding-top: 8px;
+}
+
+.icon-flipped {
+    transform: rotate(180deg);
+}
+
+#arcade {
+    --wth-routing-surface: var(--wth-bg);
+
+    .content {
+        text-align: center;
+    }
+
+    .section-lead {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .eyebrow {
+        color: var(--wth-mint-ink);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+}
+
+.machine {
+    margin: 28px auto 0;
+    max-width: 720px;
+}
+
+.machine-cabinet {
+    background: linear-gradient(180deg, var(--wth-sky) 0%, var(--wth-brand) 100%);
+    border-radius: calc(var(--card-radius) + 8px);
+    box-shadow: 0 24px 60px rgba(30, 33, 38, 0.18);
+    overflow: hidden;
+    padding: 14px;
+}
+
+.machine-marquee {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0 18px;
+    text-align: center;
+}
+
+// The lockup from the main page, shrunk to marquee size. Its own mint
+// outline and ink extrude carry it over the cabinet blue.
+.machine-marquee .wth-mark {
+    align-items: center;
+    font-size: clamp(24px, 5vw, 40px);
+}
+
+.machine-marquee-sub {
+    background-color: var(--wth-ink);
+    border-radius: 32px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-top: 10px;
+    padding: 5px 14px;
+    text-transform: uppercase;
+}
+
+.machine-glass {
+    background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 255, 255, 0.5), transparent 70%),
+        linear-gradient(180deg, #ffffff 0%, var(--wth-surface-soft) 100%);
+    border-radius: var(--card-radius);
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.6);
+    height: 285px;
+    overflow: hidden;
+    position: relative;
+
+    @include bp(tablet) {
+        height: 320px;
+    }
+
+    // A floor for the pile to sit on, so the bottom row is resting on
+    // something rather than floating at the edge of the gradient.
+    &::after {
+        background: linear-gradient(180deg, transparent, rgba(30, 33, 38, 0.09));
+        bottom: 0;
+        content: "";
+        height: 30px;
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        z-index: 0;
+    }
+}
+
+.machine-rail {
+    background: repeating-linear-gradient(90deg,
+            var(--wth-border) 0 10px,
+            transparent 10px 20px);
+    height: 4px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 18px;
+}
+
+// The claw spans the full height of the glass so the cable can be measured
+// against it, and the head rides at the bottom of the cable.
+.machine-claw {
+    --claw-depth: 26px;
+
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    left: 50%;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    transition: left 0.75s cubic-bezier(0.33, 0, 0.2, 1);
+    z-index: 4;
+
+    // While a control is held the claw should keep up with it rather than
+    // easing towards each frame's new spot.
+    &.is-moving {
+        transition: left 0.08s linear;
+    }
+
+    &.is-dropping {
+        --claw-depth: calc(100% - var(--machine-floor));
+    }
+}
+
+.machine-claw-cable {
+    background: var(--wth-ink-soft);
+    height: var(--claw-depth);
+    transition: height 0.6s cubic-bezier(0.33, 0, 0.2, 1);
+    width: 4px;
+}
+
+.machine-claw-head {
+    height: 30px;
+    position: relative;
+    width: 56px;
+
+    &::before {
+        background: var(--wth-ink);
+        border-radius: 4px;
+        content: "";
+        height: 10px;
+        left: 50%;
+        position: absolute;
+        top: -2px;
+        transform: translateX(-50%);
+        width: 26px;
+    }
+}
+
+.machine-claw-arm {
+    background: var(--wth-ink);
+    border-radius: 0 0 6px 6px;
+    height: 26px;
+    position: absolute;
+    top: 4px;
+    transition: transform 0.3s ease;
+    width: 8px;
+
+    &.left {
+        left: 8px;
+        transform-origin: top center;
+        transform: rotate(26deg);
+    }
+
+    &.right {
+        right: 8px;
+        transform-origin: top center;
+        transform: rotate(-26deg);
+    }
+}
+
+.machine-claw.is-closed {
+    .machine-claw-arm.left {
+        transform: rotate(6deg);
+    }
+
+    .machine-claw-arm.right {
+        transform: rotate(-6deg);
+    }
+}
+
+.machine-pile {
+    inset: 0;
+    position: absolute;
+}
+
+.capsule {
+    align-items: center;
+    background: var(--wth-mint);
+    border-radius: 50% 50% 46% 46%;
+    box-shadow: inset 0 -6px 0 rgba(30, 33, 38, 0.08);
+    display: flex;
+    height: var(--capsule-size);
+    justify-content: center;
+    position: absolute;
+    transform: translateX(-50%) rotate(var(--capsule-tilt, 0deg));
+    width: var(--capsule-size);
+
+    &[data-look="1"] {
+        background: var(--wth-sky);
+    }
+
+    &[data-look="2"] {
+        background: #ffffff;
+        box-shadow:
+            inset 0 0 0 3px var(--wth-mint),
+            inset 0 -6px 0 rgba(30, 33, 38, 0.06);
+    }
+
+    &[data-look="3"] {
+        background: var(--wth-line-mint);
+    }
+
+    // Riding in the claw: the capsule is a child of the claw head, so it
+    // drops its own placement and hangs from the arms instead.
+    &.is-held {
+        bottom: auto;
+        left: 50%;
+        top: 14px;
+        transform: translateX(-50%) rotate(0deg);
+        transition: opacity 0.3s ease, top 0.4s ease;
+    }
+
+    // The distance is measured when the claw lets go; the fallback covers a
+    // release that happens before the chute has been found.
+    &.is-falling {
+        opacity: 0;
+        top: var(--capsule-fall, 90px);
+        transition: opacity 0.35s ease-in 0.1s, top 0.45s cubic-bezier(0.5, 0, 0.9, 0.6);
+    }
+}
+
+.capsule-mark {
+    color: var(--wth-ink);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+// The prize chute: a rim set into the bottom right of the glass with the
+// opening cut inside it. It sits above the claw so a capsule dropped into it
+// disappears behind the rim rather than fading out in mid-air.
+.machine-chute {
+    bottom: 0;
+    height: 42px;
+    position: absolute;
+    right: 0;
+    width: 15%;
+    z-index: 6;
+
+    @include bp(tablet) {
+        height: 48px;
+    }
+
+    // The rim around the opening.
+    &::before {
+        background: var(--wth-ink);
+        border-radius: 14px 0 0 0;
+        content: "";
+        inset: 0;
+        position: absolute;
+    }
+
+    // The opening. Lighter at the bottom than the top so it reads as a
+    // recess with a back wall rather than as a hole cut out of the page.
+    &::after {
+        background: linear-gradient(180deg, #05070A 0%, #272C33 100%);
+        border-radius: 8px 0 0 0;
+        box-shadow: inset 0 6px 8px -3px rgba(0, 0, 0, 0.9);
+        content: "";
+        inset: 7px 0 0 7px;
+        position: absolute;
+    }
+}
+
+// A mint lip along the rim, picking up the campaign colour and marking the
+// opening as the place things come out.
+.machine-chute-mouth {
+    background: var(--wth-mint);
+    border-radius: 2px;
+    height: 3px;
+    left: 15px;
+    position: absolute;
+    right: 7px;
+    top: 2px;
+    z-index: 1;
+}
+
+// The controls sit on their own deck at the foot of the cabinet. It gives
+// the machine a front panel, and it is the only surface here that white text
+// can sit on and stay readable: the cabinet blue is far too light for it.
+.machine-panel {
+    align-items: center;
+    background-color: var(--wth-ink);
+    border-radius: 0 0 calc(var(--card-radius) + 8px) calc(var(--card-radius) + 8px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 14px -14px -14px;
+    padding: 20px 16px 20px;
+    text-align: center;
+}
+
+// `main#page-wth p` carries an id, so these have to match it to win.
+main#page-wth {
+    .machine-status {
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0;
+        min-height: 22px;
+    }
+
+    .machine-plays {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        margin: 0;
+        text-transform: uppercase;
+    }
+}
+
+.machine-controls {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.machine-move {
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.92);
+    border: unset;
+    border-radius: 50%;
+    color: var(--wth-ink);
+    cursor: pointer;
+    display: inline-flex;
+    height: 46px;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    width: 46px;
+    // A held control should not start selecting the page around it.
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+
+    &:hover {
+        background-color: #ffffff;
+    }
+
+    &:active {
+        transform: scale(0.94);
+    }
+
+    &[disabled] {
+        cursor: default;
+        opacity: 0.55;
+    }
+
+    .icon-inline {
+        align-items: center;
+        display: inline-flex;
+        font-size: 22px;
+    }
+}
+
+.machine-drop,
+.machine-skip {
+    cursor: pointer;
+
+    &[disabled] {
+        cursor: default;
+        opacity: 0.55;
+    }
+}
+
+main#page-wth .button.machine-skip {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+    color: #ffffff;
+    font-size: 14px;
+    padding: 10px 20px;
+
+    &:hover {
+        background-color: #ffffff;
+        color: var(--wth-ink);
+    }
+}
+
+.prize {
+    margin-top: 24px;
+    // The catch scrolls this to the bottom of the view; the margin keeps it
+    // off the very edge when it gets there.
+    scroll-margin-bottom: 28px;
+}
+
+// The capsule that falls out of the chute and down the page into the card.
+// It is laid over the page rather than inside the machine, so it can leave
+// the glass and carry the eye to what was caught.
+.capsule.is-delivering {
+    position: fixed;
+    transform: none;
+    transition:
+        transform 0.62s cubic-bezier(0.4, 0, 0.75, 0.9),
+        opacity 0.18s ease 0.46s;
+    z-index: 40;
+    pointer-events: none;
+}
+
+// The card is in the layout, holding its place, but not yet shown: the
+// capsule falling towards it is aiming at this box, so nothing here may
+// move it. Opacity only.
+.prize-card.is-arriving {
+    opacity: 0;
+}
+
+// It then grows into that place while the capsule drops, so the card reads
+// as arriving with it rather than having been there all along.
+@keyframes wth-prize-arrive {
+    from {
+        opacity: 0;
+        transform: scale(0.93) translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+// And takes the capsule's weight as it lands.
+@keyframes wth-prize-land {
+    0%,
+    100% {
+        transform: none;
+    }
+
+    45% {
+        transform: scale(1.012);
+    }
+}
+
+.prize-card {
+    background: var(--wth-surface);
+    border: 1px solid var(--wth-border);
+    border-radius: var(--card-radius);
+    padding: 24px;
+    text-align: left;
+
+    &:focus-visible {
+        outline: 3px solid var(--wth-focus);
+        outline-offset: 3px;
+    }
+
+    &.is-entering {
+        animation: wth-prize-arrive 0.52s cubic-bezier(0.2, 0.7, 0.3, 1);
+    }
+
+    // A small settle as the capsule lands in it.
+    &.is-landed {
+        animation: wth-prize-land 0.34s ease-out;
+    }
+
+    @include bp(tablet) {
+        padding: 32px;
+    }
+}
+
+main#page-wth .prize-label {
+    color: var(--wth-mint-ink);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.prize-title {
+    font-size: 22px;
+
+    @include bp(tablet) {
+        font-size: 28px;
+    }
+}
+
+.prize-meta {
+    margin-top: 10px;
+}
+
+.prize-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.prize-tag {
+    background: var(--wth-surface-soft);
+    border: 1px solid var(--wth-border);
+    border-radius: 40px;
+    color: var(--wth-ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 12px;
+}
+
+.prize-card .buttons-container {
+    margin-top: 22px;
+}
+
+.prize-note {
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+.haul {
+    background: var(--wth-surface);
+    border: 1px solid var(--wth-border);
+    border-radius: var(--card-radius);
+    margin-top: 20px;
+    padding: 20px 24px;
+    text-align: left;
+}
+
+.haul-title {
+    font-size: 17px;
+}
+
+.haul-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+
+    a {
+        color: var(--wth-ink);
+        font-weight: 600;
+    }
+}
+
+.machine-fallback {
+    background: var(--wth-surface);
+    border: 1px solid var(--wth-border);
+    border-radius: var(--card-radius);
+    margin: 32px auto 0;
+    max-width: 720px;
+    padding: 24px;
+    text-align: left;
+
+    .buttons-container {
+        margin-top: 18px;
+    }
+}
+
+// The contributor steps, set the same way as the ones on the main WTH page
+// rather than in a second style of their own.
+#arcade-after {
+    --wth-routing-surface: var(--wth-surface);
+
+    background-color: var(--wth-surface);
+
+    // The mint rule above a section heading, as on every band of the main page.
+    > .container > .content > h2:first-child {
+        padding-top: 18px;
+        position: relative;
+
+        &:before {
+            background-color: var(--wth-mint);
+            border-radius: 2px;
+            content: '';
+            height: 5px;
+            left: 0;
+            position: absolute;
+            top: 0;
+            width: 56px;
+        }
+    }
+
+    .fix-steps {
+        display: grid;
+        gap: 24px;
+        margin-top: 32px;
+
+        @include bp(tablet) {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    .fix-step {
+        border-top: 2px solid var(--wth-mint);
+        padding-top: 16px;
+
+        h3 {
+            margin-top: 10px;
+        }
+
+        p {
+            margin-top: 8px;
+        }
+    }
+
+    .fix-step-number {
+        color: var(--wth-mint-ink);
+        display: block;
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .section-note a {
+        color: #0077A3;
+        text-decoration: underline;
+    }
+}
+
+// With motion turned down the claw still plays a full turn, it just gets
+// where it is going without the travel in between.
+@media (prefers-reduced-motion: reduce) {
+
+    .machine-claw,
+    .machine-claw-cable,
+    .machine-claw-arm,
+    .capsule,
+    .prize-card {
+        animation: none !important;
+        transition: none !important;
+    }
+}
