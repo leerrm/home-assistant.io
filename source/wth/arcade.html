@@ -1,0 +1,163 @@
+---
+layout: landingpage
+title: "Wheel of WTH: spin for one to fix"
+description: "Can't decide which 'What the Heck?!' to fix? Give the wheel a spin and take whatever it lands on."
+og_image: /images/wth/wth-2026-key-visual.png
+frontpage: false
+sidebar: false
+# The page sits beside index.html so `include_relative` reaches the shared
+# wordmark and routing lines, which resolve against the page's folder.
+permalink: /wth/arcade/
+# Single place to update the forum links used across this page.
+forum_url: https://community.home-assistant.io/c/month-of-what-the-heck/61
+---
+
+{% assign pool = site.data.wth_topics.topics %}
+{% assign edition = site.data.wth_topics.edition %}
+{% assign has_pool = false %}
+{% if pool and pool.size > 0 %}
+{% assign has_pool = true %}
+{% endif %}
+
+<!-- Archivo Black is the lettering for the "What the Heck?!" wordmark only. -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" />
+<link rel="stylesheet" href="/stylesheets/homeassistant/pages/wth/arcade.css" />
+
+<main id="page-wth" class="page-wth-arcade">
+  <div class="container-full">
+    <section id="arcade-nav">
+      <div class="nav-pills">
+        <a href="/wth/" class="nav-pill">
+          <span class="icon-inline icon-flipped" aria-hidden="true">{% icon "mdi:arrow-right" %}</span>
+          Back to the Month of &ldquo;What the Heck?!&rdquo;
+        </a>
+      </div>
+    </section>
+
+    <section id="arcade">
+      {% include_relative components/_routing.html variant="left" %}
+
+      <div class="container">
+        <div class="content">
+          <p class="eyebrow">For anyone who wants to fix one</p>
+          <h1>Spin for a WTH to fix</h1>
+          <p class="section-lead">Every segment on the wheel is a real, open topic from the {% if edition %}{{ edition }} {% endif %}Month of &ldquo;What the Heck?!&rdquo; category. Give it a spin and go fix whatever it lands on.</p>
+        </div>
+
+        {% if has_pool %}
+        <div class="machine" data-wheel-game>
+          <div class="machine-cabinet" role="group" aria-label="Wheel of WTH">
+            <div class="machine-marquee">
+              {% include_relative components/_wordmark.html %}
+              <span class="machine-marquee-sub">One spin, one fix</span>
+            </div>
+
+            <div class="wheel-stage">
+              <div class="wheel-pointer" aria-hidden="true"></div>
+              <div class="wheel" data-wheel>
+                <svg class="wheel-face" viewBox="-100 -100 200 200" aria-hidden="true" data-wheel-face></svg>
+                <span class="wheel-hub" aria-hidden="true">?!</span>
+              </div>
+            </div>
+
+            <div class="machine-panel">
+              <p class="machine-status" role="status" aria-live="polite" data-status>Give the wheel a spin.</p>
+              <div class="machine-controls">
+                <button type="button" class="button machine-drop" data-spin>Spin the wheel</button>
+              </div>
+              <p class="machine-plays"><span data-plays>0 spins</span></p>
+            </div>
+          </div>
+
+          <div class="prize" data-prize hidden>
+            <div class="prize-card" tabindex="-1" data-prize-card>
+              <p class="prize-label">It landed on</p>
+              <h2 class="prize-title" data-prize-title></h2>
+              <p class="prize-meta" data-prize-meta></p>
+              <ul class="prize-tags" data-prize-tags></ul>
+              <div class="buttons-container">
+                <a class="button" data-prize-link target="_blank" rel="noopener">
+                  Open the topic
+                  <span class="icon-inline" aria-hidden="true">{% icon "mdi:arrow-right" %}</span>
+                </a>
+                <button type="button" class="button hollow" data-again>Spin again</button>
+              </div>
+              <p class="prize-note">Reply in the topic to say you are on it, so two people don&rsquo;t build the same thing twice.</p>
+            </div>
+          </div>
+
+          <div class="haul" data-haul hidden>
+            <h2 class="haul-title">Your spins</h2>
+            <ul class="haul-list" data-haul-list></ul>
+          </div>
+
+          <script type="application/json" data-wheel-pool>{{ pool | jsonify | replace: "<", "\u003c" }}</script>
+        </div>
+
+        <noscript>
+          <div class="machine-fallback">
+            <p>The wheel needs JavaScript. Here are a few open WTHs to pick from instead.</p>
+            <ul class="haul-list">
+              {% for wth in pool limit: 8 %}
+              <li><a href="https://community.home-assistant.io/t/{{ wth.slug }}/{{ wth.id }}" target="_blank" rel="noopener">{{ wth.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </noscript>
+        {% else %}
+        <div class="machine-fallback">
+          <p>The wheel is empty right now. The category is still the best place to find something to pick up.</p>
+          <div class="buttons-container">
+            <a href="{{ page.forum_url }}" class="button" target="_blank" rel="noopener">
+              Browse open WTHs
+              <span class="icon-inline" aria-hidden="true">{% icon "mdi:arrow-right" %}</span>
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section id="arcade-after">
+      {% include_relative components/_routing.html variant="right" %}
+
+      <div class="container">
+        <div class="content">
+          <h2>Landed on one? Here is what happens next</h2>
+          <p class="section-lead">The wheel only picks the topic. The rest is the same as any other contribution, and plenty of WTHs turn out to be small.</p>
+
+          <ol class="fix-steps">
+            <li class="fix-step">
+              <span class="fix-step-number">1</span>
+              <h3>Say you are on it</h3>
+              <p>Reply in the topic first, so two people do not build the same thing twice.</p>
+            </li>
+            <li class="fix-step">
+              <span class="fix-step-number">2</span>
+              <h3>Open a pull request</h3>
+              <p>Link it back to the topic. Everyone following along then knows something is happening.</p>
+            </li>
+            <li class="fix-step">
+              <span class="fix-step-number">3</span>
+              <h3>Spin again</h3>
+              <p>There is no limit on how many you take on.</p>
+            </li>
+          </ol>
+
+          <p class="section-note">Never contributed before? The <a href="https://developers.home-assistant.io/docs/development_index/">developer documentation</a> walks you through setting up a development environment and opening your first pull request.</p>
+
+          <div class="buttons-container">
+            <a href="{{ page.forum_url }}" class="button" target="_blank" rel="noopener">
+              Browse the whole category
+              <span class="icon-inline" aria-hidden="true">{% icon "mdi:arrow-right" %}</span>
+            </a>
+            <a href="/wth/" class="button hollow">Back to the WTH page</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="/javascripts/wth/wheel.js"></script>
